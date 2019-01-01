@@ -4,21 +4,13 @@ def helloworld():
 def run():
     req = None
     try:
-        req = requests.get('http://10.140.28.202:5051/employees/155108').json() #make an api call
+        req = requests.get('http://api.icndb.com/jokes/random').json() #make an api call
         print("this is my request", req)
     except Exception as e:
         print(e)
-    emps = req['data'][0]['name'] #extract employee ids from json response
-    print(emps)
-    req = requests.get('http://10.140.28.202:5051/totalLeaves/155108').json() #make an api call
-    emps = req['data'][0]['leaves_total'] #extract employee ids from json response
-    print(str(emps))
-    req = requests.get('http://10.140.28.202:5051/appliedLeaves/155108').json() #make an api call
-    emps = req['data'][0]['leaves_applied'] #extract employee ids from json response
-    print(str(emps))
-    req = requests.get('http://10.140.28.202:5051/balanceLeaves/155108').json() #make an api call
-    emps = req['data'][0]['leaves_balance'] #extract employee ids from json response
-    print(str(emps))
+    joke = req['value']['joke'] #extract employee ids from json response
+    print(joke)
+    print(str(joke))
 
     #dispatcher.utter_message(emps) #send the message back to the user
     return []
