@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chat-box</title>
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/> -->
 <style>
 body {font-family: Arial, Helvetica, sans-serif;}
 * {box-sizing: border-box;}
@@ -10,8 +11,8 @@ body {font-family: Arial, Helvetica, sans-serif;}
 ::-webkit-scrollbar { 
     display: none; 
 }
-.container {
-  border: 2px solid #dedede;
+.message-container {
+  /* border: 1px solid #dedede; */
   background-color: #f1f1f1;
   border-radius: 5px;
   padding: 10px;
@@ -20,31 +21,33 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 .darker {
   border-color: #aaa;
-  background-color: #bbb;
+  background-color: #8fbfe7;
 }
 
-.container::after {
+.message-container::after {
   content: "";
   clear: both;
   display: table;
 }
 .header {
   width: 100%;
-  height: 30px;
+  height: 50px;
   background-color: #3376ac;
   color: #f1f1f1;
   position: relative;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
 }
 
 .header span {
   position: absolute;
-  bottom: 2px;
+  bottom: 15px;
   padding-left: 10px;
 }
 
 .header b {
   position: absolute;
-  bottom: 4px;
+  bottom: 0px;
   right: 30px;
   cursor: pointer;
 }
@@ -52,9 +55,11 @@ body {font-family: Arial, Helvetica, sans-serif;}
 .container-message {
   height: 350px;
   width: 100%;
-  border: 2px solid #E1E1E1;
+  border: 1px solid #E1E1E1;
   overflow-y: scroll;
   margin-bottom: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 /* Button used to open the chat form - fixed at the bottom of the page */
@@ -74,12 +79,12 @@ body {font-family: Arial, Helvetica, sans-serif;}
 /* The popup chat - hidden by default */
 .chat-popup {
   width: 300px;
-  height: 500px;
+  height: 474px;
   display: none;
   position: fixed;
   bottom: 25px;
   right: 15px;
-  border: 1px solid #f1f1f1;
+  /* border: 1px solid #f1f1f1; */
   z-index: 9;
 }
 
@@ -92,18 +97,34 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 /* Full-width textarea */
 .form-container input {
-  width: 100%;
+  width: 79%;
   padding: 15px;
   margin: 5px 0 22px 0;
   border: none;
-  background: #ddd;
+  background: #f1f1f1;
   resize: none;
+  display:inline;
+  border-radius: 5px;
 }
 
 /* When the textarea gets focus, do something */
 .form-container input:focus {
-  background-color: #bbb;
+  background-color: #ddd;
   outline: none;
+}
+
+/* Set a style for the submit/send button */
+.form-container .send-button {
+  background-color: #3376ac;
+  color: white;
+  padding: 15px 2px;
+  border: none;
+  cursor: pointer;
+  width: 19%;
+  margin-bottom:10px;
+  opacity: 0.8;
+  display: inline;
+  border-radius: 5px;
 }
 
 /* Set a style for the submit/send button */
@@ -124,7 +145,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
 }
 
 /* Add some hover effects to buttons */
-.form-container .btn:hover, .open-button:hover {
+.form-container .send-button:hover, .btn:hover, .open-button:hover {
   opacity: 1;
 }
 
@@ -148,10 +169,11 @@ body {font-family: Arial, Helvetica, sans-serif;}
     <div id="chat_messages" class = "container-message"></div>
     <div class="div-container">
       <label for="msg"><b>Message</b></label>
-      <input type="text" name="q" id="q" placeholder="Type message.." />
+      <input type="text" name="q" id="q" placeholder="Type message.." autocomplete="off" class="form-control"/>
+      <button type="button" class="send-button" id="send" onclick="submitRequest()">Send</button>
 
-      <button type="button" class="btn" id="send" onclick="submitRequest()">Send</button>
-      <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+      <!-- <button type="button" class="btn" id="send" onclick="submitRequest()">Send</button> -->
+      <!-- <button type="button" class="btn cancel" onclick="closeForm()">Close</button> -->
     </div>
   </div>
 </div>
@@ -174,8 +196,9 @@ function createResponse(inputText, response) {
   var inputNode = document.createTextNode(inputText);
   inputElement.appendChild(inputNode);
   inputDiv.appendChild(inputElement);
-  inputDiv.className = "container darker";
-  inputDiv.style.marginLeft = "20px";
+  inputDiv.className = "message-container darker";
+  inputDiv.style.marginLeft = "25px";
+  inputDiv.style.marginRight = "5px";
 
   var outputDiv = document.createElement("div");
   var outputElement = document.createElement("p");
@@ -183,14 +206,15 @@ function createResponse(inputText, response) {
   var outputNode = document.createTextNode(response);
   outputElement.appendChild(outputNode);
   outputDiv.appendChild(outputElement);
-  outputDiv.className = "container";
-  outputDiv.style.marginRight = "20px";
+  outputDiv.className = "message-container";
+  outputDiv.style.marginRight = "25px";
+  outputDiv.style.marginLeft = "5px";
   
   element.appendChild(inputDiv);
   element.appendChild(outputDiv);
 
   //this jumps to the last element on the bottom
-  items = document.querySelectorAll(".container");
+  items = document.querySelectorAll(".message-container");
   console.log(items);
   last = items[items.length-1];
   last.scrollIntoView();
