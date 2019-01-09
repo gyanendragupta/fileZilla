@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat-box</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+<!-- Import jQuery -->
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- Import jQuery end-->
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif; background-color: green}
+* {box-sizing: border-box;}
+
+::-webkit-scrollbar { 
+    display: none; 
+}
+.message-container {
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 3px 0;
+  margin-right: 25px;
+  margin-left: 5px;
+  display: inline-block;
+  float: left;
+  clear:both;
+}
+
+.darker {
+  border-color: #aaa;
+  background-color: #8fbfe7;
+  margin-right: 5px;
+  margin-left: 25px;
+  text-align: right;
+  float: right;
+}
+
+.message-container::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+.header {
+  width: 100%;
+  height: 50px;
+  background-color: #3376ac;
+  color: #f1f1f1;
+  position: relative;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.header span {
+  position: absolute;
+  bottom: 15px;
+  padding-left: 10px;
+}
+
+.header b {
+  position: absolute;
+  bottom: 0px;
+  right: 30px;
+  cursor: pointer;
+}
+
+.container-message {
+  height: 340px;
+  width: 100%;
+  border: 1px solid #E1E1E1;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+/* Button used to open the chat form - fixed at the bottom of the page */
+.open-button {
+  background-color: #3376ac;
+  color: white;
+  padding: 12px 12px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  display: inline;
+  border-radius: 50%;
+  position: absolute;;
+  bottom: 34px;
+  right: 22px;
+}
+
+/* The popup chat - hidden by default */
+.chat-popup {
+  width: 300px;
+  height: 474px;
+  display: none;
+  position: fixed;
+  bottom: 25px;
+  right: 15px;
+  z-index: 9;
+  border-radius: 10px;
+  border: 1px solid #E1E1E1;
+}
+
+/* Add styles to the form container */
+.form-container {
+  height: 100%;
+  width: 100%;
+  background-color: white;
+  border-radius: 10px;
+}
+
+/* Full-width textarea */
+.form-container input {
+  width: 82%;
+  padding: 15px;
+  margin: 5px 0 0 5px;
+  border: none;
+  background: #f1f1f1;
+  resize: none;
+  display:inline;
+  border-radius: 10px;
+}
+
+/* When the textarea gets focus, do something */
+.form-container input:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit/send button */
+.form-container .send-button {
+  background-color: #3376ac;
+  color: white;
+  padding: 12px 12px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  display: inline;
+  border-radius: 50%;
+  position: absolute;;
+  bottom: 8px;
+  right: 7px;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .send-button:hover, .open-button:hover {
+  opacity: 1;
+}
+
+.div-container {
+  max-width: 300px;
+  background-color: white;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.div-container label{
+  margin-left: 10px
+}
+
+/* Resizable */
+
+.resizable .resizers{
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.resizable .resizers .resizer{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; /*magic to turn square into circle*/
+  background: white;
+  border: 3px solid #4286f4;
+  position: absolute;
+  opacity: 0;
+}
+
+.resizable .resizers .resizer:hover{
+  opacity: 1;
+}
+
+.resizable .resizers .resizer.top-left {
+  left: -5px;
+  top: -5px;
+  cursor: nwse-resize; /*resizer cursor*/
+}
+.resizable .resizers .resizer.top-right {
+  right: -5px;
+  top: -5px;
+  cursor: nesw-resize;
+}
+.resizable .resizers .resizer.bottom-left {
+  left: -5px;
+  bottom: -5px;
+  cursor: nesw-resize;
+}
+.resizable .resizers .resizer.bottom-right {
+  right: -5px;
+  bottom: -5px;
+  cursor: nwse-resize;
+}
+
+</style>
+</head>
+<body>
+
+<h2>HR Manager</h2>
+
+
+<!-- <button class="open-button" id="open-button" onclick="openForm()">Chat</button> -->
+<button type="button" class="open-button" id="open-button" onclick="openForm()"><i class="fa fa-comments-o" aria-hidden="true"></i></button>
+
+<div class="chat-popup resizable" id="myForm">
+
+  <div class="form-container resizers" method="get">
+      <div class='resizer top-left'></div>
+      <div class='resizer top-right'></div>
+      <div class='resizer bottom-left'></div>
+      <div class='resizer bottom-right'></div>
+    <div class="header" id="title" onmousedown="setDraggable(true)" onmouseup="setDraggable(false)"><span>CTLI HR Helpdesk</span><b><span onclick="closeForm()">X</span></b></div>
+    <div id="chat_messages" class = "container-message"></div>
+    <div class="div-container">
+      <label for="msg"><b>Message</b></label>
+      <!-- <div style="width: 100%"> -->
+      <input type="text" name="q" id="q" placeholder="Type message.." autocomplete="off" class="form-control"/>
+      <button type="button" class="send-button" id="send" onclick="submitRequest()"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+    <!-- </div> -->
+    </div>
+  </div>
+</div>
+
+<script>
+$( function() {
+  $( "#myForm" ).draggable({ disabled: true });
+} );
+
+function setDraggable(isDraggable) {
+  $( "#myForm" ).draggable({ disabled: !isDraggable });
+}
+
+document.getElementById("q")
+  .addEventListener("keyup", function(event) {
+  event.preventDefault();
+  if (event.keyCode === 13) {
+    document.getElementById("send").click();
+  }
+});
+
+function createResponse(inputText, response) {
+  var element = document.getElementById("chat_messages");
+
+  var inputDiv = document.createElement("div");
+  var inputNode = document.createTextNode(inputText);
+  inputDiv.appendChild(inputNode);
+  inputDiv.className = "message-container darker";
+
+  var outputDiv = document.createElement("div");
+  response = response.replace(/&quot;/g, '\"');
+  var outputNode = document.createTextNode(response);
+  outputDiv.appendChild(outputNode);
+  outputDiv.className = "message-container";
+  
+  element.appendChild(inputDiv);
+  element.appendChild(outputDiv);
+
+  //this jumps to the last element on the bottom
+  items = document.querySelectorAll(".message-container");
+  last = items[items.length-1];
+  last.scrollIntoView();
+
+  document.getElementById("q").value = "";
+}
+
+
+function submitRequest() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var responseObj = JSON.parse(this.responseText);
+      createResponse(document.getElementById("q").value, responseObj.value.joke || "");
+    }
+  };
+  xhttp.open("GET", "https://api.icndb.com/jokes/"+document.getElementById("q").value, true);
+  xhttp.send();
+}
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+  document.getElementById("open-button").style.display = "none";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+  document.getElementById("open-button").style.display = "block";
+}
+
+// Resizable
+/*Make resizable div by Hung Nguyen*/
+function makeResizableDiv(div) {
+  
+  const element = document.querySelector(div);
+  const resizers = document.querySelectorAll(div + ' .resizer')
+  const minimum_size = 300;
+  let original_width = 0;
+  let original_height = 0;
+  let original_x = 0;
+  let original_y = 0;
+  let original_mouse_x = 0;
+  let original_mouse_y = 0;
+  for (let i = 0;i < resizers.length; i++) {
+    const currentResizer = resizers[i];
+    currentResizer.addEventListener('mousedown', function(e) {
+      e.preventDefault()
+      original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
+      original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
+      original_x = element.getBoundingClientRect().left;
+      original_y = element.getBoundingClientRect().top;
+      original_mouse_x = e.pageX;
+      original_mouse_y = e.pageY;
+      right = original_x + original_width;
+      bottom = original_y + original_height;
+      window.addEventListener('mousemove', resize)
+      window.addEventListener('mouseup', stopResize)
+    })
+    
+    function resize(e) {
+      
+      if (currentResizer.classList.contains('bottom-right')) {
+        const width = original_width + (e.pageX - original_mouse_x);
+        const height = original_height + (e.pageY - original_mouse_y)
+        element.style.left = original_x + 'px';
+        element.style.top = original_y + 'px';
+        if (width > minimum_size) {
+          element.style.width = width + 'px';
+          document.getElementById("q").style.width = (width - 55)  + 'px'
+        }
+        if (height > minimum_size) {
+          element.style.height = height + 'px'
+          document.getElementById("chat_messages").style.height = (height - 134) + 'px'
+          
+        }
+      }
+      else if (currentResizer.classList.contains('bottom-left')) {
+        const height = original_height + (e.pageY - original_mouse_y)
+        const width = original_width - (e.pageX - original_mouse_x)
+        element.style.top = original_y + 'px';
+        
+        if (height > minimum_size) {
+          element.style.height = height + 'px'
+          document.getElementById("chat_messages").style.height = (height - 134) + 'px'
+          
+        }
+        if (width > minimum_size) {
+          element.style.width = width + 'px'
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+          document.getElementById("q").style.width = (width - 55)  + 'px'
+        }
+      }
+      else if (currentResizer.classList.contains('top-right')) {
+        const width = original_width + (e.pageX - original_mouse_x)
+        const height = original_height - (e.pageY - original_mouse_y)
+        element.style.left = original_x + 'px';
+        
+        if (width > minimum_size) {
+          element.style.width = width + 'px'
+          document.getElementById("q").style.width = (width - 55)  + 'px'
+          
+        }
+        if (height > minimum_size) {
+          element.style.height = height + 'px'
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+          document.getElementById("chat_messages").style.height = (height - 134) + 'px'
+        }
+      }
+      else {
+        const width = original_width - (e.pageX - original_mouse_x)
+        const height = original_height - (e.pageY - original_mouse_y)
+        
+        
+        if (width > minimum_size) {
+          element.style.width = width + 'px'
+          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+          document.getElementById("q").style.width = (width - 55)  + 'px'
+        }
+        if (height > minimum_size) {
+          element.style.height = height + 'px'
+          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px';
+          document.getElementById("chat_messages").style.height = (height - 134) + 'px'  
+        }
+      }
+    }
+    
+    function stopResize() {
+      window.removeEventListener('mousemove', resize)
+    }
+  }
+}
+
+makeResizableDiv('.resizable')
+</script>
+
+</body>
+</html>
